@@ -14,14 +14,29 @@
 // Execute `rustlings hint hashmaps3` or use the `hint` watch subcommand for a
 // hint.
 
-// I AM NOT DONE
 
 use std::collections::HashMap;
 
 // A structure to store the goal details of a team.
+#[derive(Debug, Copy, Clone)]
 struct Team {
     goals_scored: u8,
     goals_conceded: u8,
+}
+
+impl Team {
+    fn new(goals_scored: u8, goals_conceded: u8) -> Team {
+        Team {
+            goals_scored,
+            goals_conceded,
+        }
+    }
+
+    fn add(&mut self, goals_scored: u8, goals_conceded: u8) -> Team {
+        self.goals_scored += goals_scored;
+        self.goals_conceded += goals_conceded;
+        *self
+    }
 }
 
 fn build_scores_table(results: String) -> HashMap<String, Team> {
@@ -30,15 +45,29 @@ fn build_scores_table(results: String) -> HashMap<String, Team> {
 
     for r in results.lines() {
         let v: Vec<&str> = r.split(',').collect();
+        if v.len() != 4 {
+            panic!("parse line error: {}", r);
+        }
+
         let team_1_name = v[0].to_string();
         let team_1_score: u8 = v[2].parse().unwrap();
         let team_2_name = v[1].to_string();
         let team_2_score: u8 = v[3].parse().unwrap();
+
         // TODO: Populate the scores table with details extracted from the
         // current line. Keep in mind that goals scored by team_1
         // will be the number of goals conceded from team_2, and similarly
         // goals scored by team_2 will be the number of goals conceded by
         // team_1.
+        scores.entry(team_1_name.clone())
+            .and_modify(|t| {
+                t.add(team_1_score, team_2_score);
+            }).or_insert(Team::new(team_1_score, team_2_score));
+
+        scores.entry(team_2_name.clone())
+            .and_modify(|t| {
+                t.add(team_2_score, team_1_score);
+            }).or_insert(Team::new(team_2_score, team_1_score));
     }
     scores
 }
@@ -71,6 +100,7 @@ mod tests {
     #[test]
     fn validate_team_score_1() {
         let scores = build_scores_table(get_results());
+        println!("score: {:?}", scores);
         let team = scores.get("England").unwrap();
         assert_eq!(team.goals_scored, 5);
         assert_eq!(team.goals_conceded, 4);
