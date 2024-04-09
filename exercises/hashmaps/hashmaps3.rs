@@ -14,7 +14,6 @@
 // Execute `rustlings hint hashmaps3` or use the `hint` watch subcommand for a
 // hint.
 
-
 use std::collections::HashMap;
 
 // A structure to store the goal details of a team.
@@ -44,15 +43,15 @@ fn build_scores_table(results: String) -> HashMap<String, Team> {
     let mut scores: HashMap<String, Team> = HashMap::new();
 
     for r in results.lines() {
-        let v: Vec<&str> = r.split(',').collect();
-        if v.len() != 4 {
+        let mut v = r.split(',');
+        if v.clone().count() != 4 {
             panic!("parse line error: {}", r);
         }
 
-        let team_1_name = v[0].to_string();
-        let team_1_score: u8 = v[2].parse().unwrap();
-        let team_2_name = v[1].to_string();
-        let team_2_score: u8 = v[3].parse().unwrap();
+        let team_1_name = v.next().unwrap().to_string();
+        let team_2_name = v.next().unwrap().to_string();
+        let team_1_score: u8 = v.next().unwrap().parse().unwrap();
+        let team_2_score: u8 = v.next().unwrap().parse().unwrap();
 
         // TODO: Populate the scores table with details extracted from the
         // current line. Keep in mind that goals scored by team_1
